@@ -62,16 +62,17 @@ const SUBMIT_PAGE = `
   <div class="jumbotron">
     <h1>Shorten A URL</h1>
     <h2>Please enter the URL to shorten:</h2>
-    <form action="newLink" method="POST">
-    <div class="form-inline" role="form">
-        <div class="form-group">
-            <label class="sr-only" for="long_url">URL:</label>
-            <input type="url" name="long_url" class="form-control" style="min-width: 300px; margin-right: 20px">
-        </div>
+<form action="newLink" method="POST">
+<div class="form-inline" role="form">
+    <div class="form-group">
+        <label class="sr-only" for="long_url">URL:</label>
+        <input type="url" name="long_url" class="form-control" style="min-width: 300px; margin-right: 20px">
+    </div>
 
-        <button type="submit" class="btn btn-primary">Shorten it!</button>
-    </form>
-  </div>
+    <button type="submit" class="btn btn-primary">Shorten it!</button>
+</div>
+</form>
+</div>
 </div>
 
 </body>
