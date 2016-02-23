@@ -177,7 +177,7 @@ func main() {
 	}
 
 	http.HandleFunc("/newLink", func(w http.ResponseWriter, req *http.Request) {
-		if req.Method != http.MethodPost {
+		if req.Method != "POST" {
 			// User trying to GET the page
 			http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 			return
