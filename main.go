@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"errors"
+	"github.com/asaskevich/govalidator"
 	"github.com/mattn/go-sqlite3"
 	"html"
 	"math"
@@ -188,7 +189,12 @@ func main() {
 			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 			return
 		}
+		urlIsValid := govalidator.IsURL(rawUrl)
+		if !urlIsValid {
+			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			return
 
+		}
 		parsedUrl, err := url.Parse(rawUrl)
 		if err != nil {
 			// Malformed input from the user
