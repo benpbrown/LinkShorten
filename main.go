@@ -185,10 +185,6 @@ func main() {
 		}
 		req.ParseForm()
 		var rawUrl = req.Form.Get("long_url")
-		if strings.Compare(rawUrl, "") == 0 {
-			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-			return
-		}
 		urlIsValid := govalidator.IsURL(rawUrl)
 		if !urlIsValid {
 			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
