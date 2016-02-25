@@ -229,19 +229,13 @@ func main() {
 			log.Fatal(err)
 		}
 
-		fmt.Printf("%v: %v --> %v/%v\n", id, longUrl, PORTNO, stringFromId(id))
-		var urlString string
-		if req.TLS == nil {
-			urlString = "http://"
-		} else {
-			urlString = "https://"
-		}
-		urlString += DOMAIN + "/success"
+		log.Printf("id=%v: url=%v --> short_url=%v\n", id, longUrl, stringFromId(id))
+		urlString := "/success"
 		redirUrl, _ := url.Parse(urlString)
 		q := redirUrl.Query()
 		q.Set("short", stringFromId(id))
 		redirUrl.RawQuery = q.Encode()
-		fmt.Println(redirUrl.String())
+		log.Println("Redirecting user to " + redirUrl.String())
 		http.Redirect(w, req, redirUrl.String(), http.StatusSeeOther)
 	})
 
