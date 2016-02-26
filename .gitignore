@@ -43,3 +43,7 @@ crashlytics-build.properties
 fabric.properties
 
 shortener.sqlite3
+server.crt
+server.csr
+server.key
+server.key.org
