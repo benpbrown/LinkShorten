@@ -9,11 +9,11 @@ This was also my first time interacting with SQLite, which I chose as the databa
 ## To-Do List
 These are some relatively short-term changes that I would like to implement
 
-1. Keep a hit counter per link of how many times the short version has been accessed
-2. Use `html/template` instead of the janky string replacement.
-3. Move the logic that turns `ints` into `strings` and vice-versa to another source code file or even another package.
-4. Figure out how to do *relative* redirects with query parameters.
-5. Take parameters from the command line, especially port number.
+- [ ] Keep a hit counter per link of how many times the short version has been accessed
+- [ ] Use `html/template` instead of the janky string replacement.
+- [ ] Move the logic that turns `ints` into `strings` and vice-versa to another source code file or even another package.
+- [x] Figure out how to do *relative* redirects with query parameters.
+- [ ] Take parameters from the command line, especially port number.
 
 ## Future Work
 There are a few things I would like to improve about this project.
