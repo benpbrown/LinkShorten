@@ -79,8 +79,8 @@ const SUBMIT_PAGE = `
 </body>
 </html>
 `
-
-const DOMAIN = "localhost:8888"
+const DATABASE_FILENAME = "shortener.sqlite3"
+const SERVE_PORT_NUMBER = ":8888"
 
 func generateSuccessPage(original_url string, shortened_url string) string {
 	// any value less than zero results in infinite replacements
@@ -89,9 +89,6 @@ func generateSuccessPage(original_url string, shortened_url string) string {
 	page = strings.Replace(page, "{original_url}", html.EscapeString(original_url), -1)
 	return page
 }
-
-const database_filename = "shortener.sqlite3"
-const PORTNO = ":8888"
 
 func reverseByteSlice(s []byte) []byte {
 	var t []byte
@@ -160,7 +157,7 @@ func getShortUrlFromId(id int64, https bool) string {
 }
 
 func main() {
-	db, err := sql.Open("sqlite3", database_filename)
+	db, err := sql.Open("sqlite3", DATABASE_FILENAME)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -288,9 +285,8 @@ func main() {
 			return
 		}
 
-		//fmt.Fprintf(w, generateSuccessPage(url, getShortUrlFromId(id, req.TLS != nil)))
 		http.Redirect(w, req, url, http.StatusMovedPermanently)
 	})
 
-	log.Fatal(http.ListenAndServe(PORTNO, nil))
+	log.Fatal(http.ListenAndServe(SERVE_PORT_NUMBER, nil))
 }
