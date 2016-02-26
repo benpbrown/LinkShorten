@@ -83,8 +83,8 @@ const DATABASE_FILENAME = "shortener.sqlite3"
 const SERVE_PORT_NUMBER = ":8888"
 
 func generateSuccessPage(original_url string, shortened_url string) string {
-	// any value less than zero results in infinite replacements
 	page := SUCCESS_PAGE
+	// any value to strings.Replace less than zero results in unlimited replacements
 	page = strings.Replace(page, "{shortened_url}", html.EscapeString(shortened_url), -1)
 	page = strings.Replace(page, "{original_url}", html.EscapeString(original_url), -1)
 	return page
@@ -193,7 +193,6 @@ func main() {
 		if !urlIsValid {
 			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 			return
-
 		}
 		parsedUrl, err := url.Parse(rawUrl)
 		if err != nil {
@@ -235,6 +234,8 @@ func main() {
 
 		log.Printf("id=%v: url=%v --> short_url=%v\n", id, longUrl, stringFromId(id))
 		urlString := "/success"
+		// We can ignore the error since we set the value going into url.Parse
+		// It is known that this value is valid and will not throw an error
 		redirUrl, _ := url.Parse(urlString)
 		q := redirUrl.Query()
 		q.Set("short", stringFromId(id))
