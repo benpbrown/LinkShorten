@@ -144,16 +144,23 @@ func IdFromString(s string) (int64, error) {
 	return sum, nil
 }
 
-func getShortUrlFromId(id int64, https bool) string {
+func getShortUrlFromId(id int64, req *http.Request) string {
 	/* Get a shortened URL from an id */
-	var protocol string
-	if https {
-		// connection is secure
-		protocol = "https://"
-	} else {
-		protocol = "http://"
+
+	// If we are behind a reverse proxy, get the protocol that the client
+	// is connecting to
+	protocol := req.Header.Get("X-Forwarded-Proto")
+
+	// If the header isn't included, either the reverse proxy isn't sending it, or we are
+	// hosting directly.
+	if protocol == "" {
+		if req.TLS != nil {
+			protocol = "https"
+		} else {
+			protocol = "http"
+		}
 	}
-	return protocol + DOMAIN + "/" + stringFromId(id)
+	return protocol + "://" + req.Host + "/" + stringFromId(id)
 }
 
 func main() {
@@ -253,7 +260,8 @@ func main() {
 			http.NotFound(w, req)
 			return
 		}
-		fmt.Fprintf(w, generateSuccessPage(url, getShortUrlFromId(id, req.TLS != nil)))
+		shortUrl := getShortUrlFromId(id, req)
+		fmt.Fprintf(w, generateSuccessPage(url, shortUrl))
 	})
 
 	http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
