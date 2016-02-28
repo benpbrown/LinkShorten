@@ -1,0 +1,33 @@
+{{define "successPage"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Your Link was Shortened</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div class="container-fluid" style="text-align:center;">
+    <div class="jumbotron">
+        <h1>Success!</h1>
+
+        <h2>Your shortened URL:</h2>
+
+        <p><a href="{{.Shortened_url}}">{{.Shortened_url}}</a></p>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <h3>The original link URL</h3>
+
+            <p><a href="{{.Original_url}}">{{.Original_url}}</a></p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
+{{end}}

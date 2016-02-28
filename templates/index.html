@@ -1,0 +1,36 @@
+{{define "indexPage"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Shorten a Link</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div class="container-fluid" style="text-align:center;">
+    <div class="jumbotron">
+        <h1>Shorten A URL</h1>
+
+        <h2>Please enter the URL to shorten:</h2>
+
+        <form action="newLink" method="POST">
+            <div class="form-inline" role="form">
+                <div class="form-group">
+                    <label class="sr-only" for="long_url">URL:</label>
+                    <input type="url" id="long_url" name="long_url" class="form-control"
+                           style="min-width: 300px; margin-right: 20px">
+                </div>
+
+                <button type="submit" class="btn btn-primary">Shorten it!</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>
+{{end}}

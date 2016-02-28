@@ -10,85 +10,14 @@ import (
 	"github.com/asaskevich/govalidator"
 	"github.com/mattn/go-sqlite3"
 	"html"
+	"html/template"
 	"math"
 	"net/url"
 	"strings"
 )
 
-const SUCCESS_PAGE = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <title>Your Link was Shortened</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
-  <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-</head>
-<body>
-
-<div class="container-fluid" style="text-align:center;">
-  <div class="jumbotron">
-    <h1>Success!</h1>
-    <h2>Your shortened URL:</h2>
-    <p><a href="{shortened_url}">{shortened_url}</a></p>
-  </div>
-  <div class="row">
-    <div class="col-sm-12">
-      <h3>The original link URL</h3>
-      <p><a href="{original_url}">{original_url}</a></p>
-    </div>
-  </div>
-</div>
-
-</body>
-</html>
-`
-
-const SUBMIT_PAGE = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <title>Shorten a Link</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
-  <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-</head>
-<body>
-
-<div class="container-fluid" style="text-align:center;">
-  <div class="jumbotron">
-    <h1>Shorten A URL</h1>
-    <h2>Please enter the URL to shorten:</h2>
-<form action="newLink" method="POST">
-<div class="form-inline" role="form">
-    <div class="form-group">
-        <label class="sr-only" for="long_url">URL:</label>
-        <input type="url" name="long_url" class="form-control" style="min-width: 300px; margin-right: 20px">
-    </div>
-
-    <button type="submit" class="btn btn-primary">Shorten it!</button>
-</div>
-</form>
-</div>
-</div>
-
-</body>
-</html>
-`
 const DATABASE_FILENAME = "shortener.sqlite3"
 const SERVE_PORT_NUMBER = ":8888"
-
-func generateSuccessPage(original_url string, shortened_url string) string {
-	page := SUCCESS_PAGE
-	// any value to strings.Replace less than zero results in unlimited replacements
-	page = strings.Replace(page, "{shortened_url}", html.EscapeString(shortened_url), -1)
-	page = strings.Replace(page, "{original_url}", html.EscapeString(original_url), -1)
-	return page
-}
 
 func reverseByteSlice(s []byte) []byte {
 	var t []byte
@@ -164,6 +93,9 @@ func getShortUrlFromId(id int64, req *http.Request) string {
 }
 
 func main() {
+	// Compile and cache the templates
+	tmpl := template.Must(template.ParseGlob("templates/*.html"))
+
 	db, err := sql.Open("sqlite3", DATABASE_FILENAME)
 	if err != nil {
 		log.Fatal(err)
@@ -262,12 +194,23 @@ func main() {
 			return
 		}
 		shortUrl := getShortUrlFromId(id, req)
-		fmt.Fprintf(w, generateSuccessPage(url, shortUrl))
+		type ShortLongUrls struct {
+			Shortened_url string
+			Original_url  string
+		}
+		shortlongurls := ShortLongUrls{shortUrl, url}
+		err = tmpl.ExecuteTemplate(w, "successPage", shortlongurls)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 	})
 
 	http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
 		if req.URL.Path == "/" {
-			fmt.Fprintf(w, SUBMIT_PAGE)
+			err := tmpl.ExecuteTemplate(w, "indexPage", nil)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			}
 			return
 		}
 
