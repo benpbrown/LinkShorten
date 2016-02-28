@@ -134,7 +134,7 @@ func main() {
 		}
 		longUrl := parsedUrl.String()
 		// db.Exec sanitizes our input for us if we use the question marks
-		res, err := db.Exec("insert into urls(id, url) values(?, ?)", nil, longUrl)
+		res, err := db.Exec("INSERT INTO urls(id, url) VALUES (?, ?)", nil, longUrl)
 
 		var id int64
 		if err != nil {
@@ -188,7 +188,7 @@ func main() {
 			return
 		}
 		var url string
-		err = db.QueryRow("select url from urls where id = ?", id).Scan(&url)
+		err = db.QueryRow("SELECT url FROM urls WHERE id = ?", id).Scan(&url)
 		if err != nil {
 			http.NotFound(w, req)
 			return
@@ -231,7 +231,7 @@ func main() {
 		}
 
 		var url string
-		err = db.QueryRow("select url from urls where id = ?", id).Scan(&url)
+		err = db.QueryRow("SELECT url FROM urls WHERE id = ?", id).Scan(&url)
 		if err != nil {
 			http.NotFound(w, req)
 			return
