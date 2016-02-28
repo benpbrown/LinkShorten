@@ -168,10 +168,9 @@ func main() {
 		}
 
 		log.Printf("id=%v: url=%v --> short_url=%v\n", id, longUrl, stringFromId(id))
-		urlString := "/success"
 		// We can ignore the error since we set the value going into url.Parse
 		// It is known that this value is valid and will not throw an error
-		redirUrl, _ := url.Parse(urlString)
+		redirUrl, _ := url.Parse("/success")
 		q := redirUrl.Query()
 		q.Set("short", stringFromId(id))
 		redirUrl.RawQuery = q.Encode()
