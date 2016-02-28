@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
@@ -116,24 +117,21 @@ func main() {
 		log.Fatal(err)
 	}
 
-	http.HandleFunc("/newLink", func(w http.ResponseWriter, req *http.Request) {
+	var newLinkHandler = func(w http.ResponseWriter, req *http.Request) (int64, error) {
 		if req.Method != "POST" {
 			// User trying to GET the page
-			http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
-			return
+			return -1, errors.New("User did not POST to new link page. ")
 		}
 		req.ParseForm()
 		var rawUrl = req.Form.Get("long_url")
 		urlIsValid := govalidator.IsURL(rawUrl)
 		if !urlIsValid {
-			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-			return
+			return -1, errors.New("User gave an invalid URL to new link page. ")
 		}
 		parsedUrl, err := url.Parse(rawUrl)
 		if err != nil {
 			// Malformed input from the user
-			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-			return
+			return -1, errors.New("User gave an invalid URL to new link page. ")
 		}
 		longUrl := parsedUrl.String()
 		// db.Exec sanitizes our input for us if we use the question marks
@@ -168,6 +166,35 @@ func main() {
 		}
 
 		log.Printf("id=%v: url=%v --> short_url=%v\n", id, longUrl, stringFromId(id))
+		// If we made it this far, no error
+		return id, nil
+	}
+
+	http.HandleFunc("/api/newLink", func(w http.ResponseWriter, req *http.Request) {
+		id, err := newLinkHandler(w, req)
+		if err != nil {
+			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			return
+		}
+		type ShortUrlLongUrl struct {
+			ShortUrl string
+			LongUrl  string
+		}
+		// ParseForm can be called multiple times without ill effect (idempotent)
+		req.ParseForm()
+		// No chance of error since we already parsed this is newLinkHandler
+		longUrl, _ := url.Parse(req.Form.Get("long_url"))
+
+		p := ShortUrlLongUrl{getShortUrlFromId(id, req), longUrl.String()}
+		json.NewEncoder(w).Encode(p)
+	})
+
+	http.HandleFunc("/newLink", func(w http.ResponseWriter, req *http.Request) {
+		id, err := newLinkHandler(w, req)
+		if err != nil {
+			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			return
+		}
 		// We can ignore the error since we set the value going into url.Parse
 		// It is known that this value is valid and will not throw an error
 		redirUrl, _ := url.Parse("/success")

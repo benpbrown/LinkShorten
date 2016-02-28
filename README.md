@@ -23,3 +23,4 @@ There are a few things I would like to improve about this project.
 2. Figure out if it is possible to shuffle data around between views. It is good practice to redirect after a POST request, so the browser never asks the user [this](http://i.stack.imgur.com/oNALr.png). In another project with using the Laravel web framework, it was really easy to include data in a redirect. I haven't been able to do this in Go, so the parameter had to be sent in the URL.
 3. Test with MariaDB, and prove to myself that `database/sql` abstracts away the underlying database.
 4. Investigate something like `mod_go` for nginx instead of nginx proxying the Go http server.
+5. Should the API return an error boolean? Presently, the user could check the HTTP response code (Non-200 meaning an error occured)
