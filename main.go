@@ -2,22 +2,21 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
-	"log"
-	"net/http"
-
 	"errors"
-	"github.com/asaskevich/govalidator"
-	"github.com/mattn/go-sqlite3"
-	"html"
+	"flag"
+	"fmt"
 	"html/template"
+	"log"
 	"math"
+	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/asaskevich/govalidator"
+	"github.com/mattn/go-sqlite3"
 )
 
 const DATABASE_FILENAME = "shortener.sqlite3"
-const SERVE_PORT_NUMBER = ":8888"
 
 func reverseByteSlice(s []byte) []byte {
 	var t []byte
@@ -93,6 +92,10 @@ func getShortUrlFromId(id int64, req *http.Request) string {
 }
 
 func main() {
+	var servePortNumber int
+	flag.IntVar(&servePortNumber, "p", 8888, "Sets the port number that the HTTP server will listen on")
+	flag.Parse()
+
 	// Compile and cache the templates
 	tmpl := template.Must(template.ParseGlob("templates/*.html"))
 
@@ -246,5 +249,5 @@ func main() {
 		http.Redirect(w, req, url, http.StatusMovedPermanently)
 	})
 
-	log.Fatal(http.ListenAndServe(SERVE_PORT_NUMBER, nil))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", servePortNumber), nil))
 }
