@@ -175,7 +175,7 @@ func main() {
 	}
 	defer db.Close()
 
-	sqlStmt := "CREATE TABLE IF NOT EXISTS Urls ( id integer NOT NULL PRIMARY KEY, url text UNIQUE);"
+	sqlStmt := "CREATE TABLE IF NOT EXISTS urls ( id INTEGER NOT NULL PRIMARY KEY, url TEXT UNIQUE, hits INTEGER DEFAULT 0);"
 	_, err = db.Exec(sqlStmt)
 	if err != nil {
 		log.Fatal(err)
@@ -293,7 +293,13 @@ func main() {
 			http.NotFound(w, req)
 			return
 		}
-
+		// If we've reached this point, then the id is valid
+		_, err = db.Exec("UPDATE urls SET hits = hits + 1 WHERE id = ?", id)
+		if err != nil {
+			// This really shouldn't fail, but if it does, we should still let the
+			// user redirect.
+			log.Printf("Error updating hit counts for id=%v", id)
+		}
 		http.Redirect(w, req, url, http.StatusMovedPermanently)
 	})
 
