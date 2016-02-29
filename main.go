@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/mattn/go-sqlite3"
@@ -111,7 +112,15 @@ func main() {
 	}
 	defer db.Close()
 
-	sqlStmt := "CREATE TABLE IF NOT EXISTS urls ( id INTEGER NOT NULL PRIMARY KEY, url TEXT UNIQUE, hits INTEGER DEFAULT 0);"
+	sqlStmt := "CREATE TABLE IF NOT EXISTS urls ( id INTEGER NOT NULL PRIMARY KEY, url TEXT UNIQUE);"
+	sqlStmt += `CREATE TABLE IF NOT EXISTS hits
+	 		(
+	 		id INTEGER NOT NULL PRIMARY KEY,
+	 		url_id INTEGER NOT NULL,
+	 		ip TEXT NOT NULL,
+	 		access_time INTEGER NOT NULL,
+	 		FOREIGN KEY(url_id) REFERENCES urls(id)
+	 		)`
 	_, err = db.Exec(sqlStmt)
 	if err != nil {
 		log.Fatal(err)
@@ -265,8 +274,20 @@ func main() {
 			http.NotFound(w, req)
 			return
 		}
+
+		// In case we are behind a proxy
+		ipAddress := req.Header.Get("X-Real-IP")
+		if ipAddress == "" {
+			// Sometimes proxies use this
+			ipAddress = req.Header.Get("X-Forwarded-For")
+			if ipAddress == "" {
+				// Okay, we're probably the host, let's pull the IP from the request
+				ipAddress = req.RemoteAddr
+			}
+		}
+
 		// If we've reached this point, then the id is valid
-		_, err = db.Exec("UPDATE urls SET hits = hits + 1 WHERE id = ?", id)
+		_, err = db.Exec("INSERT INTO hits(id, url_id, ip, access_time) VALUES (?, ?, ?, ?)", nil, id, ipAddress, time.Now().Unix())
 		if err != nil {
 			// This really shouldn't fail, but if it does, we should still let the
 			// user redirect.
